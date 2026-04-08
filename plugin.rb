@@ -1,21 +1,8 @@
-# name: discourse-escrow
+yo# name: discourse-escrow
 # about: Buyer/Seller escrow protection with NGN, USDT, USDC support
 # version: 1.0.0
 # authors: Techhive
 # url: https://github.com/Techhive-Technologies/escrow/
-
-enabled_site_setting :escrow_enabled
-
-register_asset 'stylesheets/escrow.scss'
-
-after_initialize do
-  require_dependency 'application_controller'
-
-  [
-    '../app/models/escrow_transaction',
-    '../app/controllers/krabit/escrow_controller',
-    '../app/serializers/escrow_transaction_serializer'
-  ].each { |path| load File.expand_path(path + '.rb', __FILE__) }
 
   Discourse::Application.routes.append do
     scope '/escrow' do
@@ -33,4 +20,3 @@ after_initialize do
       post '/webhook/nowpayments' => 'escrow/escrow#nowpayments_webhook'
     end
   end
-end
