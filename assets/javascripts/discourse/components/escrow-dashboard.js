@@ -5,23 +5,24 @@ import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
 
 export default class EscrowDashboard extends Component {
-  @tracked transactions = [];
-  @tracked isLoading = true;
-  @tracked showNewForm = false;
-  @tracked selectedTransaction = null;
-  @tracked paymentInfo = null;
+  @tracked transactions    = [];
+  @tracked isLoading       = true;
+  @tracked showNewForm     = false;
+  @tracked paymentInfo     = null;
+  @tracked showBankForm    = false;
+  @tracked pendingTx       = null;   // tx waiting for bank details
 
-  // Form fields
+  // New deal form
   @tracked sellerUsername = "";
-  @tracked amount = "";
-  @tracked currency = "NGN";
-  @tracked network = "TRC20";
-  @tracked description = "";
+  @tracked amount         = "";
+  @tracked currency       = "NGN";
+  @tracked network        = "TRC20";
+  @tracked description    = "";
 
-  // Release form fields
-  @tracked accountNumber = "";
-  @tracked bankCode = "";
-  @tracked accountName = "";
+  // Bank details form
+  @tracked accountNumber  = "";
+  @tracked bankCode       = "";
+  @tracked accountName    = "";
 
   constructor() {
     super(...arguments);
@@ -35,11 +36,12 @@ export default class EscrowDashboard extends Component {
   get networkOptions() {
     if (this.currency === "USDT") {
       return [
-        { id: "TRC20", name: "TRC-20 (Tron) — Cheapest fees" },
+        { id: "TRC20", name: "TRC-20 (Tron) — Cheapest" },
         { id: "ERC20", name: "ERC-20 (Ethereum)" },
         { id: "BEP20", name: "BEP-20 (BSC)" },
       ];
-    } else if (this.currency === "USDC") {
+    }
+    if (this.currency === "USDC") {
       return [
         { id: "ERC20", name: "ERC-20 (Ethereum)" },
         { id: "BEP20", name: "BEP-20 (BSC)" },
@@ -59,120 +61,142 @@ export default class EscrowDashboard extends Component {
     }
   }
 
-  @action
-  toggleNewForm() {
-    this.showNewForm = !this.showNewForm;
-    this.paymentInfo = null;
+  @action toggleNewForm() {
+    this.showNewForm  = !this.showNewForm;
+    this.paymentInfo  = null;
   }
 
-  @action
-  async createEscrow() {
+  // ── BUYER: create deal ──────────────────────────────────────────────────────
+  @action async createEscrow() {
     try {
       const result = await ajax("/escrow/create", {
         type: "POST",
         data: {
           seller_username: this.sellerUsername,
-          amount: this.amount,
-          currency: this.currency,
-          network: this.network,
-          description: this.description,
+          amount:          this.amount,
+          currency:        this.currency,
+          network:         this.network,
+          description:     this.description,
         },
       });
-      this.transactions = [result, ...this.transactions];
-      this.showNewForm = false;
-      this.selectedTransaction = result;
-      // Reset form
-      this.sellerUsername = "";
-      this.amount = "";
-      this.description = "";
-    } catch (e) {
-      popupAjaxError(e);
-    }
+      this.transactions  = [result, ...this.transactions];
+      this.showNewForm   = false;
+      this.sellerUsername = this.amount = this.description = "";
+      alert("📨 Deal sent to seller! Waiting for them to accept.");
+    } catch (e) { popupAjaxError(e); }
   }
 
-  @action
-  async fundEscrow(transaction) {
+  // ── SELLER: accept ──────────────────────────────────────────────────────────
+  @action async acceptDeal(transaction) {
     try {
-      const result = await ajax(`/escrow/${transaction.id}/fund`, {
-        type: "POST",
-      });
-
-      if (result.type === "redirect") {
-        // NGN — redirect to Paystack
-        window.location.href = result.payment_url;
-      } else {
-        // Crypto — show address
-        this.paymentInfo = result;
-        this.selectedTransaction = transaction;
-      }
-    } catch (e) {
-      popupAjaxError(e);
-    }
+      await ajax(`/escrow/${transaction.id}/accept`, { type: "POST" });
+      await this.loadTransactions();
+      alert("✅ Deal accepted! The buyer will now make payment.");
+    } catch (e) { popupAjaxError(e); }
   }
 
-  @action
-  async releaseEscrow(transaction) {
+  // ── SELLER: decline ─────────────────────────────────────────────────────────
+  @action async declineDeal(transaction) {
+    const reason = prompt("Reason for declining (optional):");
+    try {
+      await ajax(`/escrow/${transaction.id}/decline`, {
+        type: "POST",
+        data: { reason },
+      });
+      await this.loadTransactions();
+    } catch (e) { popupAjaxError(e); }
+  }
+
+  // ── BUYER: cancel ───────────────────────────────────────────────────────────
+  @action async cancelDeal(transaction) {
+    if (!confirm("Cancel this escrow deal?")) return;
+    try {
+      await ajax(`/escrow/${transaction.id}/cancel`, { type: "POST" });
+      await this.loadTransactions();
+    } catch (e) { popupAjaxError(e); }
+  }
+
+  // ── BUYER: pay ──────────────────────────────────────────────────────────────
+  @action async fundEscrow(transaction) {
+    try {
+      const result = await ajax(`/escrow/${transaction.id}/fund`, { type: "POST" });
+      if (result.type === "redirect") {
+        window.location.href = result.payment_url;   // Paystack for NGN
+      } else {
+        this.paymentInfo = result;                    // show crypto address
+      }
+    } catch (e) { popupAjaxError(e); }
+  }
+
+  // ── SELLER: mark delivered ──────────────────────────────────────────────────
+  @action async deliverEscrow(transaction) {
+    if (!confirm("Mark this deal as delivered? The buyer will be notified to confirm.")) return;
+    try {
+      await ajax(`/escrow/${transaction.id}/deliver`, { type: "POST" });
+      await this.loadTransactions();
+      alert("📦 Marked as delivered! Waiting for buyer to confirm.");
+    } catch (e) { popupAjaxError(e); }
+  }
+
+  // ── BUYER: confirm delivery ─────────────────────────────────────────────────
+  @action async confirmDelivery(transaction) {
     if (transaction.currency === "NGN") {
-      // Show bank details form first
-      this.selectedTransaction = transaction;
-      this.showReleaseForm = true;
+      this.pendingTx   = transaction;
+      this.showBankForm = true;
       return;
     }
-
-    if (!confirm("Release funds to seller? This cannot be undone.")) return;
-
+    if (!confirm("Confirm delivery and release funds to seller? This cannot be undone.")) return;
     try {
-      await ajax(`/escrow/${transaction.id}/release`, { type: "POST" });
+      await ajax(`/escrow/${transaction.id}/complete`, { type: "POST" });
       await this.loadTransactions();
       alert("✅ Funds released! Seller will receive payment shortly.");
-    } catch (e) {
-      popupAjaxError(e);
-    }
+    } catch (e) { popupAjaxError(e); }
   }
 
-  @action
-  async releaseWithBankDetails(transaction) {
+  // ── NGN bank details submit ─────────────────────────────────────────────────
+  @action async submitBankDetails() {
     if (!this.accountNumber || !this.bankCode || !this.accountName) {
       alert("Please fill in all bank details.");
       return;
     }
-
     if (!confirm("Release funds to seller? This cannot be undone.")) return;
-
     try {
-      await ajax(`/escrow/${transaction.id}/release`, {
+      await ajax(`/escrow/${this.pendingTx.id}/complete`, {
         type: "POST",
         data: {
           account_number: this.accountNumber,
-          bank_code: this.bankCode,
-          account_name: this.accountName,
+          bank_code:      this.bankCode,
+          account_name:   this.accountName,
         },
       });
-      this.showReleaseForm = false;
+      this.showBankForm = false;
+      this.pendingTx    = null;
       await this.loadTransactions();
       alert("✅ Funds released! Seller will receive NGN shortly.");
-    } catch (e) {
-      popupAjaxError(e);
-    }
+    } catch (e) { popupAjaxError(e); }
   }
 
-  @action
-  async disputeEscrow(transaction) {
-    const reason = prompt("Briefly describe the issue (this will be sent to admins):");
+  @action cancelBankForm() {
+    this.showBankForm = false;
+    this.pendingTx    = null;
+  }
+
+  // ── DISPUTE ─────────────────────────────────────────────────────────────────
+  @action async disputeEscrow(transaction) {
+    const reason = prompt("Describe the issue clearly. An admin will review:");
     if (!reason) return;
-
     try {
-      await ajax(`/escrow/${transaction.id}/dispute`, { type: "POST" });
+      await ajax(`/escrow/${transaction.id}/dispute`, {
+        type: "POST",
+        data: { reason },
+      });
       await this.loadTransactions();
-      alert("⚠️ Dispute raised. An admin will review and contact both parties.");
-    } catch (e) {
-      popupAjaxError(e);
-    }
+      alert("⚠️ Dispute raised. An admin will contact both parties.");
+    } catch (e) { popupAjaxError(e); }
   }
 
-  @action
-  copyAddress(address) {
+  @action copyAddress(address) {
     navigator.clipboard.writeText(address);
-    alert("✅ Address copied to clipboard!");
+    alert("✅ Address copied!");
   }
 }
