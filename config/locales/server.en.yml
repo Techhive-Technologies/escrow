@@ -1,0 +1,5 @@
+en:
+  escrow:
+    notifications:
+      funded: "💰 %{buyer} has funded the escrow of %{amount} %{currency}. Deliver and wait for confirmation."
+      released: "✅ Escrow released! %{amount} %{currency} is being sent to you."
