@@ -1,4 +1,4 @@
-yo# name: discourse-escrow
+# name: KRABIT Escrow
 # about: Buyer/Seller escrow protection with NGN, USDT, USDC support
 # version: 1.0.0
 # authors: Techhive
