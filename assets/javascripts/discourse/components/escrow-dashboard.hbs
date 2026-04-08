@@ -1,0 +1,133 @@
+<div class="escrow-dashboard">
+  <div class="escrow-header">
+    <h1>🛡️ Escrow</h1>
+    <button class="btn btn-primary" {{on "click" this.toggleNewForm}}>
+      {{if this.showNewForm "✕ Cancel" "+ New Escrow Deal"}}
+    </button>
+  </div>
+
+  {{! ── NEW DEAL FORM ── }}
+  {{#if this.showNewForm}}
+    <div class="escrow-form card">
+      <h3>Create a New Escrow Deal</h3>
+
+      <label>Seller's Username</label>
+      <Input @value={{this.sellerUsername}} placeholder="e.g. johndoe" class="escrow-input" />
+
+      <label>Amount</label>
+      <Input @value={{this.amount}} type="number" placeholder="e.g. 50000" class="escrow-input" />
+
+      <label>Currency</label>
+      <select class="escrow-input" {{on "change" (fn (mut this.currency) value="target.value")}}>
+        <option value="NGN">🇳🇬 NGN — Nigerian Naira</option>
+        <option value="USDT">💵 USDT — Tether</option>
+        <option value="USDC">💵 USDC — USD Coin</option>
+      </select>
+
+      {{#if this.cryptoCurrencySelected}}
+        <label>Network</label>
+        <select class="escrow-input" {{on "change" (fn (mut this.network) value="target.value")}}>
+          {{#each this.networkOptions as |opt|}}
+            <option value={{opt.id}}>{{opt.name}}</option>
+          {{/each}}
+        </select>
+      {{/if}}
+
+      <label>Deal Description</label>
+      <Textarea @value={{this.description}} placeholder="What is this deal for?" class="escrow-input" />
+
+      <button class="btn btn-primary" {{on "click" this.createEscrow}}>
+        ✅ Create Escrow
+      </button>
+    </div>
+  {{/if}}
+
+  {{! ── CRYPTO PAYMENT INFO ── }}
+  {{#if this.paymentInfo}}
+    <div class="escrow-payment-info card">
+      <h3>📤 Send Payment</h3>
+      <p>Send exactly <strong>{{this.paymentInfo.pay_amount}} {{this.paymentInfo.pay_currency}}</strong> to this address:</p>
+      <div class="escrow-address">
+        <code>{{this.paymentInfo.payment_address}}</code>
+        <button class="btn btn-small" {{on "click" (fn this.copyAddress this.paymentInfo.payment_address)}}>
+          📋 Copy
+        </button>
+      </div>
+      <p class="escrow-note">⚠️ Send the exact amount. Your escrow will be activated automatically once payment is confirmed on-chain (usually 1–15 minutes).</p>
+    </div>
+  {{/if}}
+
+  {{! ── TRANSACTION LIST ── }}
+  {{#if this.isLoading}}
+    <div class="escrow-loading">Loading transactions...</div>
+  {{else if this.transactions.length}}
+    <div class="escrow-list">
+      {{#each this.transactions as |tx|}}
+        <div class="escrow-card card {{tx.status}}">
+          <div class="escrow-card-header">
+            <span class="escrow-id">#{{tx.id}}</span>
+            <span class="escrow-status badge-{{tx.status}}">
+              {{tx.status}}
+            </span>
+            <span class="escrow-amount">
+              {{tx.amount}} {{tx.currency}}
+            </span>
+          </div>
+
+          <div class="escrow-card-body">
+            <p class="escrow-description">{{tx.description}}</p>
+            <div class="escrow-parties">
+              <span>👤 Buyer: <strong>{{tx.buyer_username}}</strong></span>
+              <span>👤 Seller: <strong>{{tx.seller_username}}</strong></span>
+            </div>
+            {{#if tx.fee_amount}}
+              <p class="escrow-fee">Fee: {{tx.fee_amount}} {{tx.currency}}</p>
+            {{/if}}
+          </div>
+
+          {{! ── ACTIONS ── }}
+          <div class="escrow-actions">
+            {{#if (and tx.is_buyer (eq tx.status "pending_payment"))}}
+              <button class="btn btn-primary" {{on "click" (fn this.fundEscrow tx)}}>
+                💳 Pay Now
+              </button>
+            {{/if}}
+
+            {{#if (and tx.is_buyer (eq tx.status "funded"))}}
+              <button class="btn btn-success" {{on "click" (fn this.releaseEscrow tx)}}>
+                ✅ Release Funds to Seller
+              </button>
+              <button class="btn btn-danger" {{on "click" (fn this.disputeEscrow tx)}}>
+                ⚠️ Dispute
+              </button>
+            {{/if}}
+
+            {{#if (and tx.is_seller (eq tx.status "funded"))}}
+              <button class="btn btn-danger" {{on "click" (fn this.disputeEscrow tx)}}>
+                ⚠️ Raise Dispute
+              </button>
+            {{/if}}
+          </div>
+
+          {{! ── NGN RELEASE FORM ── }}
+          {{#if (and this.showReleaseForm (eq this.selectedTransaction.id tx.id))}}
+            <div class="escrow-release-form">
+              <h4>Enter Seller's Bank Details</h4>
+              <Input @value={{this.accountNumber}} placeholder="Account Number" class="escrow-input" />
+              <Input @value={{this.bankCode}} placeholder="Bank Code (e.g. 044 for Access Bank)" class="escrow-input" />
+              <Input @value={{this.accountName}} placeholder="Account Name" class="escrow-input" />
+              <button class="btn btn-success" {{on "click" (fn this.releaseWithBankDetails tx)}}>
+                ✅ Confirm Release
+              </button>
+            </div>
+          {{/if}}
+
+        </div>
+      {{/each}}
+    </div>
+  {{else}}
+    <div class="escrow-empty">
+      <p>🛡️ No escrow transactions yet. Create one above!</p>
+    </div>
+  {{/if}}
+</div>
