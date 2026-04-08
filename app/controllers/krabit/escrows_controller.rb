@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 class Krabit::EscrowsController < ApplicationController
   before_action :ensure_logged_in
   before_action :find_escrow, only: %i[show accept decline mark_delivered confirm dispute cancel]
@@ -18,10 +16,8 @@ class Krabit::EscrowsController < ApplicationController
     seller = User.find_by_username(p[:seller_username])
     return render_json_error("Seller not found") unless seller
     return render_json_error("Cannot escrow with yourself") if seller.id == current_user.id
-
     escrow = KrabitEscrow.new(buyer: current_user, seller: seller,
       title: p[:title], description: p[:description], amount: p[:amount], currency: p[:currency] || "USD")
-
     if escrow.save
       render json: KrabitEscrowSerializer.new(escrow, scope: current_user, root: false), status: :created
     else
@@ -29,30 +25,16 @@ class Krabit::EscrowsController < ApplicationController
     end
   end
 
-  def accept
-    @escrow.accept!(by: current_user) ? ok : render_json_error("Cannot accept")
-  end
-
-  def decline
-    @escrow.decline!(by: current_user) ? ok : render_json_error("Cannot decline")
-  end
-
-  def mark_delivered
-    @escrow.mark_delivered!(by: current_user) ? ok : render_json_error("Cannot mark delivered")
-  end
-
-  def confirm
-    @escrow.confirm!(by: current_user) ? ok : render_json_error("Cannot confirm")
-  end
+  def accept;        @escrow.accept!(by: current_user)               ? ok : render_json_error("Cannot accept");        end
+  def decline;       @escrow.decline!(by: current_user)              ? ok : render_json_error("Cannot decline");       end
+  def mark_delivered;@escrow.mark_delivered!(by: current_user)       ? ok : render_json_error("Cannot mark delivered");end
+  def confirm;       @escrow.confirm!(by: current_user)              ? ok : render_json_error("Cannot confirm");       end
+  def cancel;        @escrow.cancel!(by: current_user)               ? ok : render_json_error("Cannot cancel");        end
 
   def dispute
     reason = params[:reason].to_s.strip
     return render_json_error("Reason required") if reason.blank?
     @escrow.dispute!(by: current_user, reason: reason) ? ok : render_json_error("Cannot dispute")
-  end
-
-  def cancel
-    @escrow.cancel!(by: current_user) ? ok : render_json_error("Cannot cancel")
   end
 
   private
