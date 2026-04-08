@@ -3,7 +3,7 @@ require 'uri'
 require 'json'
 require 'openssl'
 
-module Escrow
+module Krabit
   class EscrowController < ::ApplicationController
     requires_login except: [:paystack_webhook, :nowpayments_webhook]
     skip_before_action :verify_authenticity_token, only: [:paystack_webhook, :nowpayments_webhook]
