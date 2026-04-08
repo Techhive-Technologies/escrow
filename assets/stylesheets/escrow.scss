@@ -1,0 +1,91 @@
+.escrow-dashboard {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.escrow-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+
+  h1 { margin: 0; font-size: 1.6em; }
+}
+
+.card {
+  background: var(--secondary);
+  border: 1px solid var(--primary-low);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.escrow-input {
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--primary-low);
+  background: var(--secondary);
+  color: var(--primary);
+}
+
+.escrow-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+
+  .escrow-id     { color: var(--primary-medium); font-size: 0.85em; }
+  .escrow-amount { margin-left: auto; font-weight: bold; font-size: 1.1em; }
+}
+
+.escrow-parties {
+  display: flex;
+  gap: 24px;
+  color: var(--primary-medium);
+  font-size: 0.9em;
+  margin-top: 6px;
+}
+
+.escrow-actions {
+  margin-top: 14px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.escrow-address {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--primary-very-low);
+  padding: 12px;
+  border-radius: 6px;
+  margin: 10px 0;
+
+  code {
+    flex: 1;
+    word-break: break-all;
+    font-size: 0.85em;
+  }
+}
+
+.escrow-note {
+  color: var(--danger);
+  font-size: 0.88em;
+}
+
+.escrow-release-form {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--primary-low);
+}
+
+// Status badges
+.badge-pending_payment { color: #f39c12; background: #fef9e7; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; }
+.badge-funded          { color: #27ae60; background: #eafaf1; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; }
+.badge-released        { color: #2980b9; background: #ebf5fb; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; }
+.badge-disputed        { color: #e74c3c; background: #fdedec; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; }
+.badge-cancelled       { color: #7f8c8d; background: #f2f3f4; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; }
