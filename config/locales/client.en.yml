@@ -1,0 +1,28 @@
+en:
+  js:
+    escrow:
+      title: "Escrow"
+      new_deal: "New Escrow Deal"
+      my_transactions: "My Transactions"
+      no_transactions: "You have no escrow transactions yet."
+      create:
+        seller: "Seller Username"
+        amount: "Amount"
+        currency: "Currency"
+        network: "Network"
+        description: "Deal Description"
+        submit: "Create Escrow"
+      status:
+        pending_payment: "⏳ Awaiting Payment"
+        funded: "💰 Funded"
+        released: "✅ Released"
+        disputed: "⚠️ Disputed"
+        resolved: "🔒 Resolved"
+        refunded: "↩️ Refunded"
+        cancelled: "❌ Cancelled"
+      actions:
+        fund: "Pay Now"
+        release: "Release Funds to Seller"
+        dispute: "Raise Dispute"
+      crypto_instructions: "Send exactly %{amount} %{currency} to this address:"
+      ngn_redirect: "You will be redirected to Paystack to complete your payment."
