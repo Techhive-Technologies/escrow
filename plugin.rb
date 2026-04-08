@@ -13,20 +13,24 @@ after_initialize do
 
   [
     '../app/models/escrow_transaction',
-    '../app/controllers/discourse_escrow/escrow_controller',
+    '../app/controllers/krabit/escrow_controller',
     '../app/serializers/escrow_transaction_serializer'
   ].each { |path| load File.expand_path(path + '.rb', __FILE__) }
 
   Discourse::Application.routes.append do
     scope '/escrow' do
-      get  '/'              => 'discourse_escrow/escrow#index'
-      post '/create'        => 'discourse_escrow/escrow#create'
-      post '/:id/fund'      => 'discourse_escrow/escrow#fund'
-      post '/:id/release'   => 'discourse_escrow/escrow#release'
-      post '/:id/dispute'   => 'discourse_escrow/escrow#dispute'
-      get  '/:id'           => 'discourse_escrow/escrow#show'
-      post '/webhook/paystack'     => 'discourse_escrow/escrow#paystack_webhook'
-      post '/webhook/nowpayments'  => 'discourse_escrow/escrow#nowpayments_webhook'
+      get  '/'                    => 'escrow/escrow#index'
+      post '/create'              => 'escrow/escrow#create'
+      post '/:id/accept'          => 'escrow/escrow#accept'
+      post '/:id/decline'         => 'escrow/escrow#decline'
+      post '/:id/fund'            => 'escrow/escrow#fund'
+      post '/:id/deliver'         => 'escrow/escrow#deliver'
+      post '/:id/complete'        => 'escrow/escrow#complete'
+      post '/:id/dispute'         => 'escrow/escrow#dispute'
+      post '/:id/cancel'          => 'escrow/escrow#cancel'
+      get  '/:id'                 => 'escrow/escrow#show'
+      post '/webhook/paystack'    => 'escrow/escrow#paystack_webhook'
+      post '/webhook/nowpayments' => 'escrow/escrow#nowpayments_webhook'
     end
   end
 end
