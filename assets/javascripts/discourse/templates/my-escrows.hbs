@@ -1,0 +1,70 @@
+<div class="krabit-page">
+  <div class="krabit-header">
+    <h2>🛡️ My Escrows</h2>
+    <button class="btn btn-primary" {{action "toggleForm"}}>{{if this.showForm "Cancel" "+ New Escrow"}}</button>
+  </div>
+
+  {{#if this.showForm}}
+    <div class="krabit-form">
+      <div class="krabit-form__row">
+        <div class="krabit-form__field">
+          <label>Title *</label>
+          <Input @value={{this.title}} placeholder="What is this escrow for?" />
+        </div>
+        <div class="krabit-form__field">
+          <label>Seller Username *</label>
+          <Input @value={{this.sellerUsername}} placeholder="e.g. john_doe" />
+        </div>
+      </div>
+      <div class="krabit-form__row">
+        <div class="krabit-form__field">
+          <label>Amount *</label>
+          <Input @type="number" @value={{this.amount}} placeholder="0.00" min="0" />
+        </div>
+        <div class="krabit-form__field">
+          <label>Currency</label>
+          <select onchange={{action (mut this.currency) value="target.value"}}>
+            {{#each this.currencies as |c|}}<option value={{c}} selected={{eq c this.currency}}>{{c}}</option>{{/each}}
+          </select>
+        </div>
+      </div>
+      <div class="krabit-form__field krabit-form__field--full">
+        <label>Description</label>
+        <Textarea @value={{this.description}} placeholder="What is being exchanged?" rows="3" />
+      </div>
+      <button class="btn btn-primary" {{action "create"}} disabled={{this.submitting}}>
+        {{if this.submitting "Creating..." "Create Escrow"}}
+      </button>
+    </div>
+  {{/if}}
+
+  {{#if this.model.length}}
+    <div class="krabit-list">
+      {{#each this.model as |e|}}
+        <div class="krabit-card krabit-card--{{e.status}}">
+          <div class="krabit-card__top">
+            <span class="krabit-card__title">{{e.title}}</span>
+            <span class="krabit-card__status">{{e.status}}</span>
+          </div>
+          <div class="krabit-card__meta">
+            <span>💰 {{e.amount}} {{e.currency}}</span>
+            <span>🛒 @{{e.buyer.username}} → 🏭 @{{e.seller.username}}</span>
+            <span>Fee: {{e.fee_percent}}% · Seller gets: {{e.seller_gets}} {{e.currency}}</span>
+          </div>
+          {{#if e.description}}<p class="krabit-card__desc">{{e.description}}</p>{{/if}}
+          {{#if e.dispute_reason}}<div class="krabit-card__dispute">⚠️ {{e.dispute_reason}}</div>{{/if}}
+          <div class="krabit-card__actions">
+            {{#if e.can_accept}}  <button class="btn btn-primary btn-small" {{action "accept"  e}}>✅ Accept</button>  {{/if}}
+            {{#if e.can_decline}} <button class="btn btn-danger  btn-small" {{action "decline" e}}>✕ Decline</button> {{/if}}
+            {{#if e.can_deliver}} <button class="btn btn-primary btn-small" {{action "deliver" e}}>📦 Mark Delivered</button> {{/if}}
+            {{#if e.can_confirm}} <button class="btn btn-primary btn-small" {{action "confirm" e}}>✅ Confirm Receipt</button> {{/if}}
+            {{#if e.can_dispute}} <button class="btn btn-danger  btn-small" {{action "dispute" e}}>⚠️ Dispute</button> {{/if}}
+            {{#if e.can_cancel}}  <button class="btn          btn-small" {{action "cancel"  e}}>Cancel</button> {{/if}}
+          </div>
+        </div>
+      {{/each}}
+    </div>
+  {{else}}
+    <div class="krabit-empty"><p>No escrows yet. Create one to get started.</p></div>
+  {{/if}}
+</div>

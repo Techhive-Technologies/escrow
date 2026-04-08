@@ -1,0 +1,9 @@
+krabit_escrow_enabled:
+  default: true
+  client: true
+
+krabit_escrow_fee_percent:
+  default: 5
+  min: 0
+  max: 50
+  client: true
