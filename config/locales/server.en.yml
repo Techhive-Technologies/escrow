@@ -1,5 +1,8 @@
 en:
   escrow:
     notifications:
-      funded: "💰 %{buyer} has funded the escrow of %{amount} %{currency}. Deliver and wait for confirmation."
-      released: "✅ Escrow released! %{amount} %{currency} is being sent to you."
+      accepted:  "✅ Seller %{seller} accepted your escrow deal #%{id}. You can now make payment."
+      declined:  "❌ Seller %{seller} declined escrow #%{id}. Reason: %{reason}"
+      funded:    "💰 Funds locked in escrow by %{buyer} — %{amount} %{currency}. Now deliver and mark as done. (Deal #%{id})"
+      delivered: "📦 Seller %{seller} marked escrow #%{id} as delivered. Please confirm or dispute."
+      completed: "✅ Buyer confirmed delivery! %{amount} %{currency} is being sent to you. (Deal #%{id})"
