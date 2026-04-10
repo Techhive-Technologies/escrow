@@ -1,4 +1,4 @@
-# name: KRABIT Escrow
+# name: escrow
 # about: Buyer/Seller escrow protection with NGN, USDT, USDC support
 # version: 1.0.0
 # authors: Techhive
@@ -9,6 +9,7 @@ enabled_site_setting :escrow_enabled
 register_asset 'stylesheets/escrow.scss'
 
 after_initialize do
+  # These paths correctly point to your current file structure
   load File.expand_path('../app/models/escrow_transaction.rb', __FILE__)
   load File.expand_path('../app/controllers/krabit/escrow_controller.rb', __FILE__)
   load File.expand_path('../app/serializers/escrow_transaction_serializer.rb', __FILE__)
@@ -17,7 +18,7 @@ after_initialize do
     # Frontend page
     get '/my-escrows' => 'application#index'
 
-    # API
+    # API - This correctly points to Krabit::EscrowController
     scope '/escrow' do
       get  '/'                    => 'krabit/escrow#index'
       post '/create'              => 'krabit/escrow#create'
