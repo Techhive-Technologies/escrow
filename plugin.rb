@@ -19,18 +19,18 @@ after_initialize do
 
     # API
     scope '/escrow' do
-      get  '/'                    => 'escrow/escrow#index'
-      post '/create'              => 'escrow/escrow#create'
-      post '/:id/accept'          => 'escrow/escrow#accept'
-      post '/:id/decline'         => 'escrow/escrow#decline'
-      post '/:id/fund'            => 'escrow/escrow#fund'
-      post '/:id/deliver'         => 'escrow/escrow#deliver'
-      post '/:id/complete'        => 'escrow/escrow#complete'
-      post '/:id/dispute'         => 'escrow/escrow#dispute'
-      post '/:id/cancel'          => 'escrow/escrow#cancel'
-      get  '/:id'                 => 'escrow/escrow#show'
-      post '/webhook/paystack'    => 'escrow/escrow#paystack_webhook'
-      post '/webhook/nowpayments' => 'escrow/escrow#nowpayments_webhook'
+      get  '/'                    => 'krabit/escrow#index'
+      post '/create'              => 'krabit/escrow#create'
+      post '/:id/accept'          => 'krabit/escrow#accept'
+      post '/:id/decline'         => 'krabit/escrow#decline'
+      post '/:id/fund'            => 'krabit/escrow#fund'
+      post '/:id/deliver'         => 'krabit/escrow#deliver'
+      post '/:id/complete'        => 'krabit/escrow#complete'
+      post '/:id/dispute'         => 'krabit/escrow#dispute'
+      post '/:id/cancel'          => 'krabit/escrow#cancel'
+      get  '/:id'                 => 'krabit/escrow#show'
+      post '/webhook/paystack'    => 'krabit/escrow#paystack_webhook'
+      post '/webhook/nowpayments' => 'krabit/escrow#nowpayments_webhook'
     end
   end
 end
