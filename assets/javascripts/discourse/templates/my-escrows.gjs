@@ -264,6 +264,10 @@ class MyEscrows extends Component {
               {{#if e.dispute_reason}}
                 <div class="krabit-card__dispute">⚠️ {{e.dispute_reason}}</div>
               {{/if}}
+              
+              {{#if e.pm_url}}
+                <a class="btn btn-small" href={{e.pm_url}}>💬 View Thread</a>
+              {{/if}}
               <div class="krabit-card__actions">
                 {{#if e.can_accept}}
                   <button class="btn btn-primary btn-small" {{on "click" (fn this.accept e)}}>✅ Accept</button>
