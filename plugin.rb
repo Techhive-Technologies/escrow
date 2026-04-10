@@ -4,7 +4,20 @@
 # authors: Techhive
 # url: https://github.com/Techhive-Technologies/escrow/
 
+enabled_site_setting :escrow_enabled
+
+register_asset 'stylesheets/escrow.scss'
+
+after_initialize do
+  load File.expand_path('../app/models/escrow_transaction.rb', __FILE__)
+  load File.expand_path('../app/controllers/escrow/escrow_controller.rb', __FILE__)
+  load File.expand_path('../app/serializers/escrow_transaction_serializer.rb', __FILE__)
+
   Discourse::Application.routes.append do
+    # Frontend page
+    get '/my-escrows' => 'application#index'
+
+    # API
     scope '/escrow' do
       get  '/'                    => 'escrow/escrow#index'
       post '/create'              => 'escrow/escrow#create'
@@ -20,3 +33,4 @@
       post '/webhook/nowpayments' => 'escrow/escrow#nowpayments_webhook'
     end
   end
+end
