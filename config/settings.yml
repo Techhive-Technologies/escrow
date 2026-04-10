@@ -1,33 +1,27 @@
-escrow_enabled:
-  default: false
-  client: true
-
-escrow_fee_percent:
-  default: 1.5
-  client: true
-  min: 0
-  max: 10
-
-paystack_secret_key:
-  default: ''
-  secret: true
-
-paystack_public_key:
-  default: ''
-  client: true
-
-nowpayments_api_key:
-  default: ''
-  secret: true
-
-nowpayments_ipn_secret:
-  default: ''
-  secret: true
-
-escrow_min_amount_ngn:
-  default: 1000
-  client: true
-
-escrow_min_amount_usd:
-  default: 1
-  client: true
+plugins:
+  escrow_enabled:
+    default: false
+    client: true
+  escrow_fee_percent:
+    default: 1.5
+    client: true
+    min: 0
+    max: 10
+  paystack_secret_key:
+    default: ''
+    secret: true
+  paystack_public_key:
+    default: ''
+    client: true
+  nowpayments_api_key:
+    default: ''
+    secret: true
+  nowpayments_ipn_secret:
+    default: ''
+    secret: true
+  escrow_min_amount_ngn:
+    default: 1000
+    client: true
+  escrow_min_amount_usd:
+    default: 1
+    client: true
