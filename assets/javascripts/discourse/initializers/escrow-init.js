@@ -1,18 +1,24 @@
 import { withPluginApi } from "discourse/lib/plugin-api";
+import MyEscrowsRoute from "../routes/my-escrows";
+import MyEscrowsController from "../controllers/my-escrows";
 
 export default {
   name: "escrow-init",
-  initialize() {
+  initialize(container) {
     withPluginApi("2.0.0", (api) => {
 
-      // Add "Escrow" link to the sidebar or top nav
+      // Register the page route
       api.addNavigationBarItem({
-        name: "escrow",
+        name:        "escrow",
         displayName: "🛡️ Escrow",
-        href: "/my-escrows",
-        title: "Escrow Deals",
+        href:        "/my-escrows",
+        title:       "My Escrow Deals",
       });
 
     });
+
+    // Register route and controller
+    container.register("route:my-escrows",       MyEscrowsRoute);
+    container.register("controller:my-escrows",  MyEscrowsController);
   },
 };
