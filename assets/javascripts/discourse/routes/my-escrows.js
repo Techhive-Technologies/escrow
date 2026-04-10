@@ -1,8 +1,14 @@
-import Route from "@ember/routing/route";
+import DiscourseRoute from "discourse/routes/discourse";
 import { ajax } from "discourse/lib/ajax";
-export default class MyEscrowsRoute extends Route {
+
+export default class MyEscrowsRoute extends DiscourseRoute {
+  // Sets the page title in the browser tab
+  titleToken() {
+    return "My Escrows";
+  }
+
   async model() {
-    const data = await ajax("/krabit/escrows.json");
-    return data.escrows || [];
+    const data = await ajax("/escrow/");
+    return data.transactions || [];
   }
 }
