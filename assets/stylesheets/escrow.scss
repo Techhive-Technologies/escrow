@@ -4,21 +4,6 @@
   padding: 20px;
 }
 
-.escrow-header-btn {
-  a {
-    font-size: 1.2em;
-    padding: 0 8px;
-    display: flex;
-    align-items: center;
-    height: 100%;
-    text-decoration: none;
-    opacity: 0.85;
-    transition: opacity 0.15s;
-
-    &:hover { opacity: 1; }
-  }
-}
-
 .escrow-header {
   display: flex;
   justify-content: space-between;
