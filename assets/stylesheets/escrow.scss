@@ -1,582 +1,91 @@
-// ─────────────────────────────────────────────────────────────────────────────
-// KRABIT ESCROW — styles
-// Uses Discourse CSS variables throughout for automatic theme compatibility
-// ─────────────────────────────────────────────────────────────────────────────
-
-// ── PAGE LAYOUT ───────────────────────────────────────────────────────────────
-
-.ke-page {
-  max-width: 780px;
+.escrow-dashboard {
+  max-width: 800px;
   margin: 0 auto;
-  padding: 24px 16px 60px;
-}
-
-// ── PAGE HEADER ───────────────────────────────────────────────────────────────
-
-.ke-page__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 28px;
-  gap: 12px;
-
-  @media (max-width: 600px) {
-    flex-wrap: wrap;
-  }
-}
-
-.ke-page__title {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-
-  h2 {
-    margin: 0 0 2px;
-    font-size: 1.4em;
-    font-weight: 700;
-    color: var(--primary);
-  }
-
-  p {
-    margin: 0;
-    font-size: 0.875em;
-    color: var(--primary-medium);
-  }
-}
-
-.ke-shield {
-  font-size: 2em;
-  line-height: 1;
-}
-
-.ke-btn-new {
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-// ── FORM ──────────────────────────────────────────────────────────────────────
-
-.ke-form {
-  background: var(--secondary);
-  border: 1px solid var(--primary-low);
-  border-radius: 12px;
-  padding: 24px;
-  margin-bottom: 24px;
-
-  &--bank {
-    border-color: var(--danger-low);
-    background: var(--danger-very-low, #fff8f8);
-  }
-}
-
-.ke-form__title {
-  margin: 0 0 4px;
-  font-size: 1.1em;
-  font-weight: 700;
-  color: var(--primary);
-}
-
-.ke-form__subtitle {
-  margin: 0 0 20px;
-  font-size: 0.875em;
-  color: var(--primary-medium);
-}
-
-.ke-form__grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-
-  @media (max-width: 600px) {
-    grid-template-columns: 1fr;
-  }
-}
-
-.ke-form__field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-
-  &--full {
-    grid-column: 1 / -1;
-  }
-}
-
-.ke-label {
-  font-size: 0.875em;
-  font-weight: 600;
-  color: var(--primary);
-}
-
-.ke-required {
-  color: var(--danger);
-  margin-left: 2px;
-}
-
-.ke-input {
-  width: 100%;
-  padding: 9px 12px;
-  border: 1px solid var(--primary-low);
-  border-radius: 8px;
-  background: var(--secondary);
-  color: var(--primary);
-  font-size: 0.9375em;
-  transition: border-color 0.15s ease;
-  box-sizing: border-box;
-
-  &:focus,
-  &:focus-visible {
-    outline: none;
-    border-color: var(--tertiary);
-    box-shadow: 0 0 0 2px var(--tertiary-low);
-  }
-}
-
-.ke-select {
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  padding-right: 36px;
-  cursor: pointer;
-}
-
-.ke-form__footer {
-  margin-top: 20px;
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.ke-btn-submit {
-  min-width: 160px;
-}
-
-// ── CRYPTO PANEL ──────────────────────────────────────────────────────────────
-
-.ke-crypto-panel {
-  background: var(--highlight-bg, #fffbeb);
-  border: 1px solid var(--highlight-medium, #f9c440);
-  border-radius: 12px;
   padding: 20px;
+}
+
+.escrow-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 24px;
 
-  &__header {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    margin-bottom: 16px;
-
-    strong {
-      display: block;
-      font-size: 1em;
-      font-weight: 700;
-      color: var(--primary);
-    }
-
-    span {
-      font-size: 0.85em;
-      color: var(--primary-medium);
-    }
-  }
-
-  &__icon {
-    font-size: 1.5em;
-    flex-shrink: 0;
-    margin-top: 2px;
-  }
-
-  &__close {
-    margin-left: auto;
-    background: none;
-    border: none;
-    color: var(--primary-medium);
-    cursor: pointer;
-    font-size: 1.1em;
-    padding: 0 4px;
-    flex-shrink: 0;
-
-    &:hover { color: var(--primary); }
-  }
-
-  &__amount {
-    font-size: 1.8em;
-    font-weight: 700;
-    color: var(--primary);
-    margin-bottom: 12px;
-
-    span {
-      font-size: 0.6em;
-      color: var(--primary-medium);
-      margin-left: 4px;
-    }
-  }
-
-  &__address {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: var(--secondary);
-    border: 1px solid var(--primary-low);
-    border-radius: 8px;
-    padding: 12px;
-    margin-bottom: 12px;
-
-    code {
-      flex: 1;
-      font-size: 0.82em;
-      word-break: break-all;
-      color: var(--primary);
-      font-family: monospace;
-    }
-  }
-
-  &__note {
-    font-size: 0.82em;
-    color: var(--primary-medium);
-    margin: 0;
-  }
+  h1 { margin: 0; font-size: 1.6em; }
 }
 
-.ke-btn-copy {
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-// ── LOADING ───────────────────────────────────────────────────────────────────
-
-.ke-loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 14px;
-  padding: 60px 20px;
-  color: var(--primary-medium);
-  font-size: 0.9em;
-
-  &__spinner {
-    width: 32px;
-    height: 32px;
-    border: 3px solid var(--primary-low);
-    border-top-color: var(--tertiary);
-    border-radius: 50%;
-    animation: ke-spin 0.7s linear infinite;
-  }
-}
-
-@keyframes ke-spin {
-  to { transform: rotate(360deg); }
-}
-
-// ── EMPTY STATE ───────────────────────────────────────────────────────────────
-
-.ke-empty {
-  text-align: center;
-  padding: 64px 20px;
-  color: var(--primary-medium);
-
-  &__icon {
-    font-size: 3.5em;
-    margin-bottom: 16px;
-    opacity: 0.6;
-  }
-
-  h3 {
-    margin: 0 0 10px;
-    font-size: 1.2em;
-    color: var(--primary);
-  }
-
-  p {
-    margin: 0 0 24px;
-    font-size: 0.9em;
-    line-height: 1.6;
-    max-width: 380px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-}
-
-// ── DEAL LIST ─────────────────────────────────────────────────────────────────
-
-.ke-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-// ── DEAL CARD ─────────────────────────────────────────────────────────────────
-
-.ke-card {
+.card {
   background: var(--secondary);
   border: 1px solid var(--primary-low);
-  border-radius: 12px;
-  overflow: hidden;
-  transition: box-shadow 0.15s ease;
-
-  &:hover {
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
-  }
-
-  // Left accent bar by status
-  border-left: 4px solid var(--primary-low);
-
-  &--pending_acceptance { border-left-color: #f39c12; }
-  &--accepted           { border-left-color: #3498db; }
-  &--pending_payment    { border-left-color: #9b59b6; }
-  &--funded             { border-left-color: #27ae60; }
-  &--delivered          { border-left-color: #2980b9; }
-  &--completed          { border-left-color: #27ae60; }
-  &--disputed           { border-left-color: #e74c3c; }
-  &--declined,
-  &--cancelled          { border-left-color: var(--primary-medium); }
-}
-
-.ke-card__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 18px 0;
-  gap: 10px;
-  flex-wrap: wrap;
-
-  &-left,
-  &-right {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-}
-
-.ke-card__id {
-  font-size: 0.8em;
-  color: var(--primary-medium);
-  font-weight: 600;
-}
-
-.ke-card__role {
-  font-size: 0.75em;
-  font-weight: 700;
-  padding: 2px 8px;
   border-radius: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-
-  &--Buyer  { background: var(--tertiary-low); color: var(--tertiary); }
-  &--Seller { background: var(--success-low, #eafaf1); color: var(--success, #27ae60); }
+  padding: 20px;
+  margin-bottom: 16px;
 }
 
-.ke-thread-link {
-  font-size: 0.82em;
-  color: var(--tertiary);
-  text-decoration: none;
-  padding: 2px 8px;
-  border-radius: 8px;
-  border: 1px solid var(--tertiary-low);
-  transition: background 0.15s;
-
-  &:hover {
-    background: var(--tertiary-low);
-    text-decoration: none;
-  }
-}
-
-.ke-card__body {
-  padding: 14px 18px 18px;
-}
-
-.ke-card__title {
-  margin: 0 0 6px;
-  font-size: 1.05em;
-  font-weight: 700;
+.escrow-input {
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--primary-low);
+  background: var(--secondary);
   color: var(--primary);
 }
 
-.ke-card__desc {
-  margin: 0 0 14px;
-  font-size: 0.875em;
+.escrow-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+
+  .escrow-id     { color: var(--primary-medium); font-size: 0.85em; }
+  .escrow-amount { margin-left: auto; font-weight: bold; font-size: 1.1em; }
+}
+
+.escrow-parties {
+  display: flex;
+  gap: 24px;
   color: var(--primary-medium);
-  line-height: 1.5;
-}
-
-.ke-card__parties {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 14px;
-  flex-wrap: wrap;
-}
-
-.ke-party {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-
-  &__label {
-    font-size: 0.72em;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--primary-medium);
-    font-weight: 600;
-  }
-
-  &__name {
-    font-size: 0.9em;
-    font-weight: 600;
-    color: var(--primary);
-  }
-
-  &__arrow {
-    color: var(--primary-medium);
-    font-size: 1.1em;
-    margin-top: 10px;
-  }
-}
-
-.ke-card__amounts {
-  display: flex;
-  gap: 0;
-  background: var(--primary-very-low);
-  border-radius: 8px;
-  overflow: hidden;
-  margin-bottom: 4px;
-}
-
-.ke-amount {
-  flex: 1;
-  padding: 10px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  border-right: 1px solid var(--primary-low);
-
-  &:last-child { border-right: none; }
-
-  &__label {
-    font-size: 0.72em;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--primary-medium);
-    font-weight: 600;
-  }
-
-  &__value {
-    font-size: 0.95em;
-    font-weight: 700;
-    color: var(--primary);
-  }
-
-  &--total .ke-amount__value { color: var(--primary); }
-  &--seller .ke-amount__value { color: var(--success, #27ae60); }
-
-  @media (max-width: 480px) {
-    padding: 8px 10px;
-
-    .ke-amount__label { font-size: 0.65em; }
-    .ke-amount__value { font-size: 0.85em; }
-  }
-}
-
-.ke-dispute-reason {
-  margin-top: 12px;
-  padding: 10px 14px;
-  background: var(--danger-low, #fdedec);
-  border-radius: 8px;
-  font-size: 0.875em;
-  color: var(--danger);
-  line-height: 1.5;
-}
-
-// ── ACTION BUTTONS ────────────────────────────────────────────────────────────
-
-.ke-card__actions {
-  padding: 14px 18px 18px;
-  border-top: 1px solid var(--primary-low);
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  align-items: center;
-}
-
-.ke-action-btn {
   font-size: 0.9em;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-weight: 600;
-  white-space: nowrap;
-
-  &--outline {
-    background: transparent;
-    border: 1.5px solid var(--danger);
-    color: var(--danger);
-
-    &:hover {
-      background: var(--danger-low, #fdedec);
-    }
-  }
-
-  &--ghost {
-    background: transparent;
-    border: 1px solid var(--primary-low);
-    color: var(--primary-medium);
-
-    &:hover {
-      background: var(--primary-very-low);
-      color: var(--primary);
-    }
-  }
+  margin-top: 6px;
 }
 
-// ── STATUS BADGES ─────────────────────────────────────────────────────────────
+.escrow-actions {
+  margin-top: 14px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
 
-.ke-badge {
-  display: inline-flex;
+.escrow-address {
+  display: flex;
   align-items: center;
-  padding: 3px 10px;
-  border-radius: 20px;
-  font-size: 0.78em;
-  font-weight: 600;
-  white-space: nowrap;
+  gap: 10px;
+  background: var(--primary-very-low);
+  padding: 12px;
+  border-radius: 6px;
+  margin: 10px 0;
 
-  &--pending_acceptance {
-    background: #fef3e2;
-    color: #d68910;
-  }
-  &--accepted {
-    background: #ebf5fb;
-    color: #1a6fa0;
-  }
-  &--pending_payment {
-    background: #f5eef8;
-    color: #7d3c98;
-  }
-  &--funded {
-    background: #eafaf1;
-    color: #1e8449;
-  }
-  &--delivered {
-    background: #eaf4fb;
-    color: #1a5276;
-  }
-  &--completed {
-    background: #eafaf1;
-    color: #1e8449;
-  }
-  &--disputed {
-    background: #fdedec;
-    color: #c0392b;
-  }
-  &--resolved {
-    background: #eafaf1;
-    color: #1e8449;
-  }
-  &--refunded {
-    background: #ebf5fb;
-    color: #1a6fa0;
-  }
-  &--declined,
-  &--cancelled {
-    background: var(--primary-very-low);
-    color: var(--primary-medium);
+  code {
+    flex: 1;
+    word-break: break-all;
+    font-size: 0.85em;
   }
 }
+
+.escrow-note {
+  color: var(--danger);
+  font-size: 0.88em;
+}
+
+.escrow-release-form {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--primary-low);
+}
+
+// Status badges
+.badge-pending_payment { color: #f39c12; background: #fef9e7; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; }
+.badge-funded          { color: #27ae60; background: #eafaf1; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; }
+.badge-released        { color: #2980b9; background: #ebf5fb; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; }
+.badge-disputed        { color: #e74c3c; background: #fdedec; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; }
+.badge-cancelled       { color: #7f8c8d; background: #f2f3f4; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; }
