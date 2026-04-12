@@ -31,7 +31,7 @@ module Krabit
       render json: EscrowTransactionSerializer.new(transaction, scope: guardian, root: false)
     end
 
-    # POST /escrow/create — Buyer creates the deal (no payment yet)
+    # POST /escrow/create
     def create
       seller = User.find_by(username: params[:seller_username])
       return render json: { error: 'Seller not found' }, status: 404        unless seller
@@ -58,65 +58,68 @@ module Krabit
         status:          'pending_acceptance'
       )
 
-      # Notify seller via forum notification
+      # Notify seller — link goes to the dedicated offer page
       seller.notifications.create!(
         notification_type: Notification.types[:custom],
         data: {
-          message: "🛡️ #{current_user.username} wants to open an escrow deal with you for #{amount} #{currency}. Review and accept or decline.",
-          url: "/my-escrows"
+          message: "🛡️ #{current_user.username} sent you an escrow offer for #{amount} #{currency}. Tap to review.",
+          url: "/escrow-offer/#{transaction.id}"
         }.to_json
       )
 
-      # Open a private message thread between buyer and seller
+      # Create PM — seller + admins only, sent from system
       create_escrow_thread(transaction, seller)
 
       render json: EscrowTransactionSerializer.new(transaction, scope: guardian, root: false), status: 201
     end
 
-    # POST /escrow/:id/accept — Seller accepts
+    # POST /escrow/:id/accept
     def accept
       transaction = EscrowTransaction.find(params[:id])
       return render json: { error: 'Only the seller can accept' }, status: 403 unless transaction.seller_id == current_user.id
       return render json: { error: 'Deal is not pending acceptance' }, status: 400 unless transaction.accept!
 
-      # Notify buyer
+      # Notify buyer with link to pay
       transaction.buyer.notifications.create!(
         notification_type: Notification.types[:custom],
         data: {
-          message: "✅ #{current_user.username} accepted your escrow deal ##{transaction.id}. You can now make payment.",
+          message: "✅ #{current_user.username} accepted your escrow deal \"#{transaction.title}\". Tap to make payment.",
           url: "/my-escrows"
         }.to_json
       )
 
-      # Post a status update into the deal thread
-      post_to_escrow_thread(transaction, "✅ **#{current_user.username}** has **accepted** this deal. The buyer can now proceed with payment.")
+      post_to_escrow_thread(
+        transaction,
+        "✅ **#{current_user.username}** has **accepted** this deal.\n\n@#{transaction.buyer.username} — you can now [make payment on My Escrows](/my-escrows)."
+      )
 
       render json: EscrowTransactionSerializer.new(transaction, scope: guardian, root: false)
     end
 
-    # POST /escrow/:id/decline — Seller declines
+    # POST /escrow/:id/decline
     def decline
       transaction = EscrowTransaction.find(params[:id])
       return render json: { error: 'Only the seller can decline' }, status: 403 unless transaction.seller_id == current_user.id
       reason = params[:reason].to_s
       return render json: { error: 'Deal cannot be declined at this stage' }, status: 400 unless transaction.decline!(reason)
 
-      # Notify buyer
       transaction.buyer.notifications.create!(
         notification_type: Notification.types[:custom],
         data: {
-          message: "❌ #{current_user.username} declined escrow deal ##{transaction.id}. Reason: #{reason}",
+          message: "❌ #{current_user.username} declined your escrow deal \"#{transaction.title}\".#{reason.present? ? " Reason: #{reason}" : ''}",
           url: "/my-escrows"
         }.to_json
       )
 
-      # Post a status update into the deal thread
-      post_to_escrow_thread(transaction, "❌ **#{current_user.username}** has **declined** this deal.#{reason.present? ? " Reason: #{reason}" : ''}")
+      post_to_escrow_thread(
+        transaction,
+        "❌ **#{current_user.username}** has **declined** this deal.#{reason.present? ? "\n\n**Reason:** #{reason}" : ''}"
+      )
 
       render json: EscrowTransactionSerializer.new(transaction, scope: guardian, root: false)
     end
 
-    # POST /escrow/:id/fund — Buyer initiates payment (after seller accepted)
+    # POST /escrow/:id/fund
     def fund
       transaction = EscrowTransaction.find(params[:id])
       return render json: { error: 'Only the buyer can pay' }, status: 403 unless transaction.buyer_id == current_user.id
@@ -153,28 +156,29 @@ module Krabit
       end
     end
 
-    # POST /escrow/:id/deliver — Seller marks as delivered
+    # POST /escrow/:id/deliver
     def deliver
       transaction = EscrowTransaction.find(params[:id])
       return render json: { error: 'Only the seller can mark as delivered' }, status: 403 unless transaction.seller_id == current_user.id
       return render json: { error: 'Funds must be in escrow first' }, status: 400 unless transaction.deliver!
 
-      # Notify buyer
       transaction.buyer.notifications.create!(
         notification_type: Notification.types[:custom],
         data: {
-          message: "📦 #{current_user.username} marked escrow ##{transaction.id} as delivered. Please confirm or dispute.",
+          message: "📦 #{current_user.username} marked escrow \"#{transaction.title}\" as delivered. Please confirm or dispute.",
           url: "/my-escrows"
         }.to_json
       )
 
-      # Post a status update into the deal thread
-      post_to_escrow_thread(transaction, "📦 **#{current_user.username}** has marked this deal as **delivered**.\n\n@#{transaction.buyer.username} — please go to [My Escrows](/my-escrows) to **Confirm Receipt** or raise a **Dispute**.")
+      post_to_escrow_thread(
+        transaction,
+        "📦 **#{current_user.username}** has marked this deal as **delivered**.\n\n@#{transaction.buyer.username} — please go to [My Escrows](/my-escrows) to **Confirm Receipt** or raise a **Dispute**."
+      )
 
       render json: EscrowTransactionSerializer.new(transaction, scope: guardian, root: false)
     end
 
-    # POST /escrow/:id/complete — Buyer confirms delivery, releases funds
+    # POST /escrow/:id/complete
     def complete
       transaction = EscrowTransaction.find(params[:id])
       return render json: { error: 'Only the buyer can confirm' }, status: 403 unless transaction.buyer_id == current_user.id
@@ -195,17 +199,18 @@ module Krabit
 
       transaction.complete!
 
-      # Notify seller
       transaction.seller.notifications.create!(
         notification_type: Notification.types[:custom],
         data: {
-          message: "✅ #{transaction.buyer.username} confirmed receipt on escrow ##{transaction.id}. #{transaction.amount} #{transaction.currency} is being sent to you.",
+          message: "✅ #{transaction.buyer.username} confirmed receipt. #{transaction.amount} #{transaction.currency} is being sent to you.",
           url: "/my-escrows"
         }.to_json
       )
 
-      # Post a status update into the deal thread
-      post_to_escrow_thread(transaction, "✅ **#{transaction.buyer.username}** has confirmed receipt and **released the funds**.\n\n💰 **#{transaction.amount} #{transaction.currency}** is being sent to @#{transaction.seller.username}.\n\nThis deal is now complete. Thank you! 🎉")
+      post_to_escrow_thread(
+        transaction,
+        "✅ **#{transaction.buyer.username}** confirmed receipt and **released the funds**.\n\n💰 **#{transaction.amount} #{transaction.currency}** is being sent to @#{transaction.seller.username}.\n\nDeal complete! 🎉"
+      )
 
       render json: EscrowTransactionSerializer.new(transaction, scope: guardian, root: false)
     end
@@ -217,34 +222,31 @@ module Krabit
       return render json: { error: 'Not authorized' }, status: 403 unless parties.include?(current_user.id)
       return render json: { error: 'Can only dispute funded or delivered escrows' }, status: 400 unless transaction.dispute!(current_user.id, params[:reason])
 
-      # Notify admins
       User.where(admin: true).each do |admin|
         admin.notifications.create!(
           notification_type: Notification.types[:custom],
           data: {
-            message: "⚠️ Dispute raised on Escrow ##{transaction.id} by #{current_user.username}. Reason: #{params[:reason]}",
+            message: "⚠️ Dispute on Escrow ##{transaction.id} by #{current_user.username}: #{params[:reason]}",
             url: "/my-escrows"
           }.to_json
         )
       end
 
-      # Post a status update into the deal thread (admins are added here)
       post_to_escrow_thread(
         transaction,
-        "⚠️ **Dispute raised** by @#{current_user.username}.\n\n**Reason:** #{params[:reason]}\n\nAn admin has been notified and will review this deal. Please do not delete any messages in this thread.",
+        "⚠️ **Dispute raised** by @#{current_user.username}.\n\n**Reason:** #{params[:reason]}\n\nAn admin has been notified and will review this deal.",
         add_admins: true
       )
 
       render json: EscrowTransactionSerializer.new(transaction, scope: guardian, root: false)
     end
 
-    # POST /escrow/:id/cancel — Buyer cancels before payment
+    # POST /escrow/:id/cancel
     def cancel
       transaction = EscrowTransaction.find(params[:id])
       return render json: { error: 'Only the buyer can cancel' }, status: 403 unless transaction.buyer_id == current_user.id
       return render json: { error: 'Cannot cancel at this stage' }, status: 400 unless transaction.cancel!
 
-      # Post a status update into the deal thread
       post_to_escrow_thread(transaction, "🚫 **#{current_user.username}** has **cancelled** this deal.")
 
       render json: EscrowTransactionSerializer.new(transaction, scope: guardian, root: false)
@@ -263,7 +265,10 @@ module Krabit
         ref = event['data']['reference']
         t   = EscrowTransaction.find_by(payment_reference: ref)
         if t&.fund!
-          post_to_escrow_thread(t, "💰 **Payment confirmed!** #{t.amount} #{t.currency} is now **locked in escrow**.\n\n@#{t.seller.username} — please deliver and click **Mark Delivered** when done.")
+          post_to_escrow_thread(
+            t,
+            "💰 **Payment confirmed!** #{t.amount} #{t.currency} is now **locked in escrow**.\n\n@#{t.seller.username} — deliver and click **Mark Delivered** when done."
+          )
         end
       end
       head :ok
@@ -279,7 +284,10 @@ module Krabit
       if %w[confirmed finished].include?(event['payment_status'])
         t = EscrowTransaction.find_by(payment_reference: event['payment_id'].to_s)
         if t&.fund!
-          post_to_escrow_thread(t, "💰 **Crypto payment confirmed!** #{t.amount} #{t.currency} is now **locked in escrow**.\n\n@#{t.seller.username} — please deliver and click **Mark Delivered** when done.")
+          post_to_escrow_thread(
+            t,
+            "💰 **Crypto payment confirmed!** #{t.amount} #{t.currency} is now **locked in escrow**.\n\n@#{t.seller.username} — deliver and click **Mark Delivered** when done."
+          )
         end
       end
       head :ok
@@ -287,15 +295,18 @@ module Krabit
 
     private
 
-    # ── PRIVATE MESSAGE HELPERS ───────────────────────────────────────────────
+    # ── PM HELPERS ────────────────────────────────────────────────────────────
 
-    # Creates the initial PM thread when a deal is opened
     def create_escrow_thread(transaction, seller)
       title       = transaction.title.to_s.truncate(60)
       description = transaction.description.to_s
 
+      # Build list of admin usernames to include in the PM
+      admin_usernames = User.where(admin: true).pluck(:username)
+      all_targets     = ([seller.username] + admin_usernames).uniq.join(',')
+
       message_body = <<~MD
-        ## 🛡️ Escrow Deal ##{transaction.id} — #{title}
+        ## 🛡️ Escrow Offer ##{transaction.id} — #{title}
 
         | | |
         |---|---|
@@ -309,59 +320,47 @@ module Krabit
 
         ---
 
-        Use this thread for **all communications** about this deal.
+        @#{seller.username} — please review this offer and [accept or decline here](/escrow-offer/#{transaction.id}).
 
-        ### How this works:
-        1. 🟡 **Seller** — accept or decline this deal on [My Escrows](/my-escrows)
-        2. 💳 **Buyer** — make payment once seller accepts
-        3. 🔒 Funds are locked in escrow until delivery is confirmed
-        4. 📦 **Seller** — mark as delivered when done
-        5. ✅ **Buyer** — confirm receipt to release funds, or raise a dispute
-
-        > ⚠️ Funds will **not** be released until the buyer clicks **Confirm Receipt** on the [My Escrows](/my-escrows) page.
-
-        Good luck with your deal! 🤝
+        > ⚠️ Funds will **not** be released until the buyer clicks **Confirm Receipt** after delivery.
       MD
 
+      # Post as system user so emails come from the platform, not the buyer
       post = PostCreator.create!(
-        transaction.buyer,
-        title:            "🛡️ Escrow ##{transaction.id} — #{title}",
+        Discourse.system_user,
+        title:            "🛡️ Escrow Offer ##{transaction.id} — #{title}",
         raw:              message_body,
         archetype:        Archetype.private_message,
-        target_usernames: seller.username,
+        target_usernames: all_targets,
         skip_validations: true
       )
 
-      # Store the topic ID on the transaction so we can post to it later
       transaction.update!(pm_topic_id: post.topic_id) if transaction.respond_to?(:pm_topic_id=)
 
     rescue => e
       Rails.logger.error("Escrow PM creation failed for ##{transaction.id}: #{e.message}")
     end
 
-    # Posts a status update into the existing deal thread
     def post_to_escrow_thread(transaction, message, add_admins: false)
-      # Find the topic — first try stored ID, then search by title
       topic = if transaction.respond_to?(:pm_topic_id) && transaction.pm_topic_id.present?
         Topic.find_by(id: transaction.pm_topic_id)
       else
         Topic.where(archetype: Archetype.private_message)
-             .where("title LIKE ?", "🛡️ Escrow ##{transaction.id}%")
+             .where("title LIKE ?", "🛡️ Escrow%##{transaction.id}%")
              .first
       end
 
       return unless topic
 
-      # Add admins to the thread if this is a dispute
       if add_admins
         User.where(admin: true).each do |admin|
           topic.topic_allowed_users.find_or_create_by!(user_id: admin.id)
         end
       end
 
-      # Post the system message as the buyer (deal creator)
+      # Post as system user — no user email exposed
       PostCreator.create!(
-        transaction.buyer,
+        Discourse.system_user,
         topic_id:         topic.id,
         raw:              message,
         skip_validations: true
