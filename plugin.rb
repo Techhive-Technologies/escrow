@@ -17,6 +17,8 @@ after_initialize do
   Discourse::Application.routes.append do
     # Frontend page
     get '/my-escrows' => 'application#index', format: false, constraints: { format: /(html|js)/ }
+    get '/escrow-offer/:id'  => 'application#index', format: false, constraints: { format: /(html|js)/ }   # ← new
+
     
     # API - This correctly points to Krabit::EscrowController
     scope '/escrow' do
