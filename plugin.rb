@@ -14,7 +14,7 @@ after_initialize do
   load File.expand_path('../app/controllers/krabit/escrow_controller.rb', __FILE__)
   load File.expand_path('../app/serializers/escrow_transaction_serializer.rb', __FILE__)
 
-  Discourse::Application.routes.prepend do
+  Discourse::Application.routes.append do
     # Frontend page
     get '/my-escrows' => 'application#index', format: false, constraints: { format: /(html|js)/ }
     
