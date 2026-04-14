@@ -1,0 +1,186 @@
+{{! /my/escrows page }}
+<div class="krabit-escrows-page">
+  <div class="krabit-escrows-header">
+    <h2>My Escrows</h2>
+    <button class="btn btn-primary" {{action "toggleCreateForm"}}>
+      + New Escrow
+    </button>
+  </div>
+
+  {{#if this.showCreateForm}}
+    <div class="krabit-escrow-create-form">
+      <h3>Create Escrow Request</h3>
+
+      {{! Role selector }}
+      <div class="krabit-form-row">
+        <label>My Role *</label>
+        <div class="krabit-role-toggle">
+          <button
+            class="krabit-role-btn {{if (eq this.newMyRole 'buyer') 'active'}}"
+            {{action (mut this.newMyRole) "buyer"}}>
+            🛒 I am the Buyer
+          </button>
+          <button
+            class="krabit-role-btn {{if (eq this.newMyRole 'seller') 'active'}}"
+            {{action (mut this.newMyRole) "seller"}}>
+            🏪 I am the Seller
+          </button>
+        </div>
+        <p class="krabit-role-hint">
+          {{#if (eq this.newMyRole "buyer")}}
+            You will fund the escrow. The other party is the seller.
+          {{else}}
+            You will deliver goods/services. The other party is the buyer.
+          {{/if}}
+        </p>
+      </div>
+
+      <div class="krabit-form-row">
+        <label>{{if (eq this.newMyRole "buyer") "Seller" "Buyer"}} Username *</label>
+        <Input
+          @value={{this.newCounterpartUsername}}
+          placeholder="Enter their Discourse username"
+        />
+      </div>
+
+      <div class="krabit-form-row">
+        <label>Title *</label>
+        <Input @value={{this.newTitle}} placeholder="What is this escrow for?" />
+      </div>
+
+      <div class="krabit-form-row krabit-form-row--half">
+        <div>
+          <label>Amount *</label>
+          <Input @type="number" @value={{this.newAmount}} placeholder="0.00" min="0" step="0.01" />
+        </div>
+        <div>
+          <label>Currency *</label>
+          <select onchange={{action (mut this.newCurrency) value="target.value"}}>
+            {{#each this.currencies as |c|}}
+              <option value={{c}} selected={{eq c this.newCurrency}}>
+                {{get this.currencyLabels c}}
+              </option>
+            {{/each}}
+          </select>
+        </div>
+      </div>
+
+      <div class="krabit-form-row">
+        <label>Description</label>
+        <Textarea
+          @value={{this.newDescription}}
+          placeholder="Describe what is being exchanged, terms, deadlines..."
+          rows="3"
+        />
+      </div>
+
+      <div class="krabit-form-actions">
+        <button
+          class="btn btn-primary"
+          {{action "createEscrow"}}
+          disabled={{this.creating}}>
+          {{if this.creating "Sending Request..." "Send Escrow Request"}}
+        </button>
+        <button class="btn" {{action "toggleCreateForm"}}>Cancel</button>
+      </div>
+    </div>
+  {{/if}}
+
+  {{#if this.model.length}}
+    <div class="krabit-escrow-list">
+      {{#each this.model as |escrow|}}
+        <div class="krabit-escrow-card krabit-status--{{escrow.status}}">
+
+          <div class="krabit-escrow-card__header">
+            <div class="krabit-escrow-card__title-group">
+              <span class="krabit-escrow-card__role-badge krabit-role--{{escrow.my_role}}">
+                {{if (eq escrow.my_role "buyer") "🛒 Buyer" "🏪 Seller"}}
+              </span>
+              <span class="krabit-escrow-card__title">{{escrow.title}}</span>
+            </div>
+            <span class="krabit-escrow-card__status">{{escrow.display_status}}</span>
+          </div>
+
+          <div class="krabit-escrow-card__meta">
+            <span class="krabit-escrow-card__amount">
+              {{escrow.amount}} {{escrow.currency}}
+            </span>
+            <span class="krabit-escrow-card__parties">
+              <img src={{escrow.buyer.avatar_template}} class="avatar tiny" />
+              {{escrow.buyer.username}} (buyer)
+              →
+              <img src={{escrow.seller.avatar_template}} class="avatar tiny" />
+              {{escrow.seller.username}} (seller)
+            </span>
+            <span class="krabit-escrow-card__date">{{format-date escrow.created_at}}</span>
+          </div>
+
+          <div class="krabit-escrow-card__fee">
+            Fee: {{escrow.platform_fee_percent}}%
+            ({{escrow.platform_fee_amount}} {{escrow.currency}}) —
+            Seller receives: {{escrow.seller_receives}} {{escrow.currency}}
+          </div>
+
+          {{#if escrow.description}}
+            <p class="krabit-escrow-card__desc">{{escrow.description}}</p>
+          {{/if}}
+
+          {{#if escrow.dispute_reason}}
+            <div class="krabit-escrow-card__dispute">
+              ⚠️ Dispute raised: {{escrow.dispute_reason}}
+            </div>
+          {{/if}}
+
+          {{#if escrow.resolution_note}}
+            <div class="krabit-escrow-card__resolution">
+              🛡️ Resolution: {{escrow.resolution_note}}
+            </div>
+          {{/if}}
+
+          <div class="krabit-escrow-card__actions">
+            {{! Counterpart actions }}
+            {{#if escrow.can_accept}}
+              <button class="btn btn-primary btn-small" {{action "acceptEscrow" escrow}}>
+                ✅ Accept
+              </button>
+              <button class="btn btn-danger btn-small" {{action "declineEscrow" escrow}}>
+                ❌ Decline
+              </button>
+            {{/if}}
+
+            {{! Seller action }}
+            {{#if escrow.can_mark_delivering}}
+              <button class="btn btn-primary btn-small" {{action "markDelivering" escrow}}>
+                📦 Mark as Delivered
+              </button>
+            {{/if}}
+
+            {{! Buyer actions }}
+            {{#if escrow.can_confirm}}
+              <button class="btn btn-primary btn-small" {{action "confirmEscrow" escrow}}>
+                ✅ Confirm Receipt
+              </button>
+            {{/if}}
+            {{#if escrow.can_dispute}}
+              <button class="btn btn-danger btn-small" {{action "disputeEscrow" escrow}}>
+                ⚠️ Raise Dispute
+              </button>
+            {{/if}}
+
+            {{! Open PM thread }}
+            {{#if escrow.pm_topic_id}}
+              <button class="btn btn-small krabit-pm-btn" {{action "openPmThread" escrow}}>
+                💬 Open Conversation
+              </button>
+            {{/if}}
+          </div>
+
+        </div>
+      {{/each}}
+    </div>
+  {{else}}
+    <div class="krabit-escrows-empty">
+      <p>You have no escrow transactions yet. Create one to get started!</p>
+    </div>
+  {{/if}}
+</div>

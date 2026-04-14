@@ -1,0 +1,280 @@
+/* ── KRABIT Escrow Styles ─────────────────────────────────────────────── */
+
+.krabit-escrows-page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.krabit-escrows-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+
+  h2 { margin: 0; font-size: 1.4em; }
+}
+
+/* ── Create Form ──────────────────────────────────────────────────────── */
+
+.krabit-escrow-create-form {
+  background: var(--primary-very-low);
+  border: 1px solid var(--primary-low);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 28px;
+
+  h3 { margin: 0 0 16px; }
+}
+
+.krabit-form-row {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 14px;
+
+  label {
+    font-size: 0.82em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--primary-medium);
+    margin-bottom: 5px;
+  }
+
+  input, select, textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px 10px;
+    border: 1px solid var(--primary-low);
+    border-radius: 6px;
+    font-size: 0.95em;
+    background: var(--secondary);
+    color: var(--primary);
+
+    &:focus {
+      outline: none;
+      border-color: var(--tertiary);
+      box-shadow: 0 0 0 2px var(--tertiary-low);
+    }
+  }
+}
+
+.krabit-form-row--half {
+  flex-direction: row;
+  gap: 12px;
+
+  > div {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+
+    label {
+      font-size: 0.82em;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--primary-medium);
+      margin-bottom: 5px;
+    }
+
+    input, select {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 8px 10px;
+      border: 1px solid var(--primary-low);
+      border-radius: 6px;
+      font-size: 0.95em;
+      background: var(--secondary);
+      color: var(--primary);
+    }
+  }
+}
+
+/* ── Role Toggle ──────────────────────────────────────────────────────── */
+
+.krabit-role-toggle {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.krabit-role-btn {
+  flex: 1;
+  padding: 10px;
+  border: 2px solid var(--primary-low);
+  border-radius: 8px;
+  background: var(--secondary);
+  color: var(--primary);
+  cursor: pointer;
+  font-size: 0.95em;
+  font-weight: 600;
+  transition: all 0.15s ease;
+
+  &:hover { border-color: var(--tertiary); }
+
+  &.active {
+    border-color: var(--tertiary);
+    background: var(--tertiary-low);
+    color: var(--tertiary);
+  }
+}
+
+.krabit-role-hint {
+  font-size: 0.82em;
+  color: var(--primary-medium);
+  margin: 0;
+}
+
+.krabit-form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+/* ── Escrow Cards ─────────────────────────────────────────────────────── */
+
+.krabit-escrow-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.krabit-escrow-card {
+  background: var(--secondary);
+  border: 1px solid var(--primary-low);
+  border-radius: 10px;
+  padding: 16px 18px;
+  border-left: 4px solid var(--primary-low);
+
+  &.krabit-status--awaiting_acceptance { border-left-color: #a78bfa; }
+  &.krabit-status--accepted            { border-left-color: #60a5fa; }
+  &.krabit-status--paid                { border-left-color: var(--success); }
+  &.krabit-status--delivering          { border-left-color: #f0a500; }
+  &.krabit-status--completed,
+  &.krabit-status--resolved_released   { border-left-color: var(--success); }
+  &.krabit-status--disputed            { border-left-color: var(--danger); }
+  &.krabit-status--resolved_refunded,
+  &.krabit-status--declined            { border-left-color: var(--primary-medium); }
+}
+
+.krabit-escrow-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.krabit-escrow-card__title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.krabit-escrow-card__role-badge {
+  font-size: 0.75em;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+
+  &.krabit-role--buyer  { background: #dbeafe; color: #1d4ed8; }
+  &.krabit-role--seller { background: #dcfce7; color: #15803d; }
+}
+
+.krabit-escrow-card__title {
+  font-weight: 700;
+  font-size: 1.05em;
+}
+
+.krabit-escrow-card__status {
+  font-size: 0.75em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: var(--primary-low);
+  color: var(--primary-medium);
+}
+
+.krabit-escrow-card__meta {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  font-size: 0.87em;
+  color: var(--primary-medium);
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.krabit-escrow-card__amount {
+  font-weight: 700;
+  font-size: 1.05em;
+  color: var(--primary);
+}
+
+.krabit-escrow-card__parties {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
+  .avatar { width: 20px; height: 20px; border-radius: 50%; }
+}
+
+.krabit-escrow-card__fee {
+  font-size: 0.8em;
+  color: var(--primary-medium);
+  margin: 5px 0;
+}
+
+.krabit-escrow-card__desc {
+  font-size: 0.9em;
+  color: var(--primary-medium);
+  margin: 6px 0;
+}
+
+.krabit-escrow-card__dispute {
+  background: var(--danger-low);
+  border: 1px solid var(--danger);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.88em;
+  color: var(--danger);
+  margin: 8px 0;
+}
+
+.krabit-escrow-card__resolution {
+  background: var(--success-low);
+  border: 1px solid var(--success);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.88em;
+  color: var(--success);
+  margin: 8px 0;
+}
+
+.krabit-escrow-card__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.krabit-pm-btn {
+  background: var(--primary-low) !important;
+  color: var(--primary) !important;
+}
+
+.krabit-escrows-empty {
+  text-align: center;
+  padding: 48px 0;
+  color: var(--primary-medium);
+}
+
+@media (max-width: 600px) {
+  .krabit-escrows-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .krabit-form-row--half { flex-direction: column; }
+  .krabit-role-toggle    { flex-direction: column; }
+  .krabit-escrow-card__meta { flex-direction: column; align-items: flex-start; gap: 5px; }
+}
